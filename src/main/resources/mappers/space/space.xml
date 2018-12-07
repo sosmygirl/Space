@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace:面向接口编程时，必须是接口的位置 -->
+<mapper namespace="com.hqyj.dao.space.SpaceDao">
+    <cache></cache>
+    <select id="findAll" resultType="com.hqyj.bean.space.BuildingType">
+        select *
+        from building_type
+    </select>
+    <select id="findBuildings" resultMap="buildmap">
+        select building.id, building.name, building.describe, building_type.id as typeid, building_type.typename
+        from building,
+             building_type
+        where building.typeid = building_type.id
+          and building.typeid = #{typeid}
+        <if test="keyword!=null">
+            and building.describe like concat('%',#{keyword},'%')
+        </if>
+
+    </select>
+    <resultMap id="buildmap" type="com.hqyj.bean.space.Building">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="describe" column="describe"/>
+        <result property="type.id" column="typeid"/>
+        <result property="type.typename" column="typename"/>
+    </resultMap>
+
+    <select id="findAllBuildingType" resultType="com.hqyj.bean.space.BuildingType">
+        SELECT id, typename
+        from building_type
+    </select>
+
+    <insert id="addNewBuilding">
+        insert into building (name, building.describe, typeid)
+        values (#{name}, #{describe}, #{typeid})
+    </insert>
+    <select id="findBuildingName" resultType="java.lang.String">
+      select name from building
+
+    </select>
+    
+    <select id="findSpaceByBuildingId" resultType="com.hqyj.bean.space.Space">
+        select * from space where building_id = #{buildingid}
+        <if test="keyword!=null">
+            and space.describe like concat('%',#{keyword},'%')
+        </if>
+    </select>
+
+    <!--web buildingType-->
+    <select id="findTypeAndBuilding" resultMap="typeandbuilding">
+        select building_type.id,typename,building.id as bid,building.name,building.describe from building_type left join building on building_type.id = building.typeid
+    </select>
+    <resultMap id="typeandbuilding" type="com.hqyj.bean.space.BuildingType">
+        <result property="id" column="id"/>
+        <result property="typename" column="typename"/>
+        <collection property="buildings" ofType="com.hqyj.bean.space.Building">
+            <result property="id" column="bid"/>
+            <result property="name" column="name"/>
+            <result property="describe" column="describe"/>
+        </collection>
+
+    </resultMap>
+
+    <select id="findBuildingAndSpace" resultMap="buildingAndSpaceMap">
+        select b.id,b.name,b.describe,b.typeid,s.id as spaceid,s.name as space_name,s.vol,s.describe as space_describe  from building as b left join space as s on b.id = s.building_id
+    </select>
+
+    <resultMap id="buildingAndSpaceMap" type="com.hqyj.bean.space.Building">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="describe" column="describe"/>
+        <result property="type.id" column="typeid"/>
+        <collection property="spaces" ofType="com.hqyj.bean.space.Space">
+            <result property="id" column="spaceid"/>
+            <result property="name" column="space_name"/>
+            <result property="vol" column="vol"/>
+            <result property="describe" column="space_describe"/>
+
+        </collection>
+    </resultMap>
+    <select id="findTypeid" resultType="com.hqyj.bean.space.BuildingType">
+        select typeid id from type_role where roleid=(select id from userrole where rolename=#{rolename})
+    </select>
+
+</mapper>

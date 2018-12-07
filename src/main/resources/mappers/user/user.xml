@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace:面向接口编程时，必须是接口的位置 -->
+<mapper namespace="com.hqyj.dao.user.UserDao">
+    <select id="findUserByUsernameOREmail" resultType="com.hqyj.bean.user.User">
+        select id, username, user.email, user.password, user.active
+        from user
+        where username = #{username}
+           or email = #{email}
+    </select>
+    <insert id="addNewUser">
+        insert into user (username, email, password, active, user.sign)
+        values (#{username}, #{email}, #{password}, #{active}, #{sign})
+    </insert>
+    <update id="activeUser">
+        update user
+        set user.active = 1
+        where email = #{email}
+          and sign = #{sign}
+    </update>
+    <select id="findUserByEmailAndPassword" resultType="com.hqyj.bean.user.User">
+        select *
+        from user
+        where email = #{email}
+          and password = #{password}
+    </select>
+    <select id="findRoles" resultMap="userrolemap">
+        select user.id,username,email,password,active,userrole.id as rid ,rolename from userrole,user where userrole.id = user.roleid and email=#{email} and active=1
+    </select>
+    <resultMap id="userrolemap" type="com.hqyj.bean.user.User">
+        <result column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="email" property="email"/>
+        <result column="password" property="password"/>
+        <result column="active" property="active"/>
+        <collection property="roles" ofType="com.hqyj.bean.role.Role">
+            <result column="rid" property="id"/>
+            <result column="rolename" property="rolename"/>
+        </collection>
+    </resultMap>
+</mapper>

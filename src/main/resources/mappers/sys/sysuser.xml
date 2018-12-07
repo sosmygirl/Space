@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace:面向接口编程时，必须是接口的位置 -->
+<mapper namespace="com.hqyj.dao.sys.SysUserDao">
+    <cache></cache>
+<select id="findSysUser"  resultType="com.hqyj.bean.sys.SysUser">
+select * from sys_user
+    <trim prefix="where" prefixOverrides="and|or">
+        <if test="username!=null">
+            and username=#{username}
+        </if>
+        <if test="email!=null">
+            and email=#{email}
+        </if>
+        <if test="password!=null">
+            and password=#{password}
+        </if>
+    </trim>
+</select>
+<!-- addSysUser -->
+<insert id="addSysUser">
+INSERT INTO sys_user (username,email,password) VALUES(#{username},#{email},#{password})
+</insert>
+    <select id="findSysUserByEmail" resultType="com.hqyj.bean.sys.SysUser">
+        select * from sys_user where email=#{email}
+    </select>
+<update id="updatePwd">
+    update sys_user set password=#{password} where email=#{email}
+</update>
+
+    <select id="findAll" resultType="com.hqyj.bean.sys.SysUser">
+        select * from sys_user
+
+        <trim prefix="where" prefixOverrides="and|or">
+          <if test="username!=null">
+              and username like concat('%',#{username},'%')
+            /*and username like '%${username}%'*/
+          </if>
+        </trim>
+    </select>
+
+
+</mapper>
